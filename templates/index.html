@@ -1,28 +1,15 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="description" content="e-식당 장부 — 우리 팀의 식당 장부를 간편하게 관리하세요. 모바일 터치 몇 번으로 잔액 충전과 식대 차감을 처리합니다.">
     <meta name="theme-color" content="#141720">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>e-식당 장부</title>
-
-    <!-- Open Graph / Kakao / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ request.url }}">
-    <meta property="og:title" content="e-식당 장부 (e-Meal Book)">
-    <meta property="og:description" content="우리 팀의 식당 장부를 간편하게 관리하세요. 모바일 터치 몇 번으로 식대 차감과 잔액 충전을 처리합니다.">
-    <meta property="og:image" content="{{ request.url_root.rstrip('/') }}/static/og-image.png">
-    <meta property="og:site_name" content="e-식당 장부">
-
-    <!-- Twitter Card -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="{{ request.url }}">
-    <meta property="twitter:title" content="e-식당 장부 (e-Meal Book)">
-    <meta property="twitter:description" content="우리 팀의 식당 장부를 간편하게 관리하세요. 모바일 터치 몇 번으로 식대 차감과 잔액 충전을 처리합니다.">
-    <meta property="twitter:image" content="{{ request.url_root.rstrip('/') }}/static/og-image.png">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/static/favicon.png">
@@ -33,6 +20,7 @@
     <!-- Chart.js 4.x CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
+
 <body>
     <div id="app">
         <!-- SPA content rendered here by app.js -->
@@ -45,4 +33,5 @@
     <!-- App Script -->
     <script src="/static/js/app.js"></script>
 </body>
+
 </html>
