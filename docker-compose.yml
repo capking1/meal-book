@@ -1,0 +1,43 @@
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: meal-db
+    restart: unless-stopped
+    command: --default-time-zone=+09:00
+    environment:
+      TZ: Asia/Seoul
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-meal_root_pass}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-meal_book}
+      MYSQL_USER: ${MYSQL_USER:-meal_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-meal_pass}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: meal-app
+    restart: unless-stopped
+    ports:
+      - "7890:8080"
+    environment:
+      TZ: Asia/Seoul
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${MYSQL_DATABASE:-meal_book}
+      DB_USER: ${MYSQL_USER:-meal_user}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-meal_pass}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mysql_data:

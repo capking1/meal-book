@@ -1,0 +1,26 @@
+name: Deploy e-Meal Book
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Sync static files
+        run: |
+          sudo cp -r static/* /var/www/emealbook/static/
+          sudo systemctl restart nginx || true
+
+      - name: Restart service
+        run: |
+          # systemd 서비스로 등록된 경우
+          sudo systemctl restart emealbook || true
+          echo "Deployment complete"
