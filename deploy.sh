@@ -43,7 +43,7 @@ ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "${VM_USER}@${VM_IP}" "
         echo '원격 디렉토리가 존재하지 않습니다. 새로 생성하고 저장소를 클론합니다.';
         git clone https://github.com/capking1/meal-book.git '$REMOTE_DIR';
     fi
-    cd '$REMOTE_DIR' && git pull origin main
+    cd '$REMOTE_DIR' && git fetch --all && git reset --hard origin/main
 "
 
 if [ $? -ne 0 ]; then

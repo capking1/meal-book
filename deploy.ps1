@@ -11,13 +11,13 @@ $REMOTE_DIR = "/home/$VM_USER/meal-book"
 Write-Host "[1/3] 원격 서버($VM_IP)에 접속하여 최신 소스 코드 반영 중..." -ForegroundColor Green
 
 # 원격 서버에서 프로젝트 폴더가 없으면 생성하고 git clone을 시도하거나,
-# 폴더가 있으면 git pull을 실행합니다.
+# 폴더가 있으면 강제 동기화(fetch & reset)를 실행합니다.
 ssh -i $SSH_KEY -o StrictHostKeyChecking=no "${VM_USER}@${VM_IP}" "
     if [ ! -d '$REMOTE_DIR' ]; then
         echo '원격 디렉토리가 존재하지 않습니다. 새로 생성하고 저장소를 클론합니다.';
         git clone https://github.com/capking1/meal-book.git '$REMOTE_DIR';
     fi
-    cd '$REMOTE_DIR' && git pull origin main
+    cd '$REMOTE_DIR' && git fetch --all && git reset --hard origin/main
 "
 
 if ($LASTEXITCODE -ne 0) {
