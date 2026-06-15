@@ -12,17 +12,17 @@
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="/">
+    <meta property="og:url" content="{{ request.url }}">
     <meta property="og:title" content="e-식당 장부">
     <meta property="og:description" content="우리 팀의 식당 장부를 간편하게 관리하세요. 모바일 터치 몇 번으로 잔액 충전과 식대 차감을 처리합니다.">
-    <meta property="og:image" content="/static/favicon.png">
+    <meta property="og:image" content="{{ url_for('static', filename='favicon.png', _external=True) }}">
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary">
-    <meta property="twitter:url" content="/">
+    <meta property="twitter:url" content="{{ request.url }}">
     <meta property="twitter:title" content="e-식당 장부">
     <meta property="twitter:description" content="우리 팀의 식당 장부를 간편하게 관리하세요. 모바일 터치 몇 번으로 잔액 충전과 식대 차감을 처리합니다.">
-    <meta property="twitter:image" content="/static/favicon.png">
+    <meta property="twitter:image" content="{{ url_for('static', filename='favicon.png', _external=True) }}">
 
     <title>e-식당 장부</title>
 
