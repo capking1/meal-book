@@ -1324,7 +1324,7 @@ Router.register('/member/spend/:restId', async (container, params) => {
             if (res.data && res.data.transaction_id) {
                 Session.addMyTransaction(res.data.transaction_id);
             }
-            Router.navigate('/member');
+            Router.navigate('/member/history');
         } catch (e) {
             Toast.error(e.message);
         }
