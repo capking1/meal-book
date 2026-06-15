@@ -640,6 +640,169 @@ def update_nickname(team_id):
 
 
 # ──────────────────────────────────────────────
+# API: 거래 수정 및 삭제 (1시간 이내 본인 거래)
+# ──────────────────────────────────────────────
+@app.route('/api/transactions/<tx_id>', methods=['DELETE'])
+def delete_transaction(tx_id):
+    """거래 삭제 및 잔액 연쇄 복구"""
+    conn = get_db()
+    try:
+        conn.autocommit = False
+        cur = conn.cursor(dictionary=True)
+
+        # 1. 거래 조회 및 락
+        cur.execute("SELECT * FROM MealTransactions WHERE id = %s FOR UPDATE", (tx_id,))
+        tx = cur.fetchone()
+        if not tx:
+            conn.rollback()
+            cur.close()
+            return err('존재하지 않는 거래 내역입니다.', 404)
+
+        # 2. 시간 제약 검사 (1시간)
+        now = datetime.now()
+        tx_time = tx['created_at']
+        if isinstance(tx_time, str):
+            tx_time = datetime.strptime(tx_time, '%Y-%m-%d %H:%M:%S')
+        if now - tx_time > timedelta(hours=1):
+            conn.rollback()
+            cur.close()
+            return err('등록 후 1시간이 지난 거래는 삭제할 수 없습니다.', 403)
+
+        rest_id = tx['restaurant_id']
+        amount = tx['amount']
+        tx_type = tx['type']
+
+        # 3. 식당 잔액 락 및 조회
+        cur.execute("SELECT balance FROM MealRestaurants WHERE id = %s FOR UPDATE", (rest_id,))
+        rest = cur.fetchone()
+        if not rest:
+            conn.rollback()
+            cur.close()
+            return err('식당을 찾을 수 없습니다.', 404)
+
+        # 4. 잔액 복원 연산
+        if tx_type == 'spend':
+            diff = amount  # 차감된 돈을 복원하므로 식당 잔액 +
+        elif tx_type == 'charge':
+            diff = -amount # 충전된 돈을 차감하므로 식당 잔액 -
+        else:
+            diff = 0
+
+        new_balance = rest['balance'] + diff
+        cur.execute("UPDATE MealRestaurants SET balance = %s WHERE id = %s", (new_balance, rest_id))
+
+        # 5. 이후 발생한 거래의 balance_after 연쇄 업데이트
+        cur.execute(
+            """UPDATE MealTransactions 
+               SET balance_after = balance_after + %s 
+               WHERE restaurant_id = %s AND created_at > %s""",
+            (diff, rest_id, tx['created_at'])
+        )
+
+        # 6. 거래 내역 삭제
+        cur.execute("DELETE FROM MealTransactions WHERE id = %s", (tx_id,))
+
+        conn.commit()
+        cur.close()
+        return ok({'new_balance': new_balance}, '거래 내역이 삭제되었습니다.')
+    except mysql.connector.Error as e:
+        conn.rollback()
+        return err(f'데이터베이스 오류: {e}', 500)
+    finally:
+        conn.close()
+
+
+@app.route('/api/transactions/<tx_id>', methods=['PUT'])
+def update_transaction(tx_id):
+    """거래 수정 및 차액 연쇄 반영"""
+    data = request.get_json(silent=True) or {}
+    new_amount = data.get('amount')
+    new_memo = (data.get('memo') or '').strip()
+
+    if new_amount is None:
+        return err('금액을 입력해주세요.')
+    
+    try:
+        new_amount = int(new_amount)
+    except ValueError:
+        return err('금액은 숫자여야 합니다.')
+
+    if new_amount <= 0:
+        return err('금액은 0보다 커야 합니다.')
+
+    conn = get_db()
+    try:
+        conn.autocommit = False
+        cur = conn.cursor(dictionary=True)
+
+        # 1. 거래 조회 및 락
+        cur.execute("SELECT * FROM MealTransactions WHERE id = %s FOR UPDATE", (tx_id,))
+        tx = cur.fetchone()
+        if not tx:
+            conn.rollback()
+            cur.close()
+            return err('존재하지 않는 거래 내역입니다.', 404)
+
+        # 2. 시간 제약 검사 (1시간)
+        now = datetime.now()
+        tx_time = tx['created_at']
+        if isinstance(tx_time, str):
+            tx_time = datetime.strptime(tx_time, '%Y-%m-%d %H:%M:%S')
+        if now - tx_time > timedelta(hours=1):
+            conn.rollback()
+            cur.close()
+            return err('등록 후 1시간이 지난 거래는 수정할 수 없습니다.', 403)
+
+        rest_id = tx['restaurant_id']
+        old_amount = tx['amount']
+        tx_type = tx['type']
+
+        # 3. 식당 잔액 락 및 조회
+        cur.execute("SELECT balance FROM MealRestaurants WHERE id = %s FOR UPDATE", (rest_id,))
+        rest = cur.fetchone()
+        if not rest:
+            conn.rollback()
+            cur.close()
+            return err('식당을 찾을 수 없습니다.', 404)
+
+        # 4. 차액 계산 및 잔액 조정
+        if tx_type == 'spend':
+            diff = old_amount - new_amount
+        elif tx_type == 'charge':
+            diff = new_amount - old_amount
+        else:
+            diff = 0
+
+        new_balance = rest['balance'] + diff
+        cur.execute("UPDATE MealRestaurants SET balance = %s WHERE id = %s", (new_balance, rest_id))
+
+        # 5. 현재 거래를 포함한 이후의 모든 거래의 balance_after 연쇄 업데이트
+        cur.execute(
+            """UPDATE MealTransactions 
+               SET balance_after = balance_after + %s 
+               WHERE restaurant_id = %s AND created_at >= %s""",
+            (diff, rest_id, tx['created_at'])
+        )
+
+        # 6. 현재 거래 자체의 정보 수정
+        cur.execute(
+            """UPDATE MealTransactions 
+               SET amount = %s, memo = %s 
+               WHERE id = %s""",
+            (new_amount, new_memo, tx_id)
+        )
+
+        conn.commit()
+        cur.close()
+        return ok({'new_balance': new_balance}, '거래 정보가 수정되었습니다.')
+    except mysql.connector.Error as e:
+        conn.rollback()
+        return err(f'데이터베이스 오류: {e}', 500)
+    finally:
+        conn.close()
+
+
+# ──────────────────────────────────────────────
 # SPA 라우팅 — 모든 페이지 뷰에 index.html 반환
 # ──────────────────────────────────────────────
 @app.route('/')

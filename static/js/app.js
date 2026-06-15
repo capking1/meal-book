@@ -31,6 +31,15 @@ const Session = {
     getTeamId()  { return this.get()?.teamId || ''; },
     getTeamName(){ return this.get()?.teamName || ''; },
     getNickname(){ return this.get()?.nickname || ''; },
+    getMyTransactions() { return this.get()?.myTransactions || []; },
+    addMyTransaction(txId) {
+        const s = this.get();
+        if (s) {
+            s.myTransactions = s.myTransactions || [];
+            s.myTransactions.push(txId);
+            this.set(s);
+        }
+    }
 };
 
 
@@ -217,6 +226,46 @@ function showModal(title, message, confirmText, cancelText, onConfirm) {
     overlay.querySelector('.confirm-btn').addEventListener('click', () => {
         overlay.remove();
         onConfirm();
+    });
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.remove();
+    });
+}
+
+function showEditModal(title, amount, memo, onConfirm) {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+        <div class="modal-content">
+            <h2>${escapeHtml(title)}</h2>
+            <div class="form-group" style="text-align: left; margin-top: 16px;">
+                <label>금액 (원)</label>
+                <input type="number" class="input" id="edit-modal-amount" value="${amount}" min="0">
+            </div>
+            <div class="form-group" style="text-align: left; margin-top: 12px; margin-bottom: 20px;">
+                <label>메모 (선택)</label>
+                <input type="text" class="input" id="edit-modal-memo" value="${escapeHtml(memo)}" maxlength="255">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost cancel-btn">취소</button>
+                <button class="btn btn-primary confirm-btn">저장</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    overlay.querySelector('.cancel-btn').addEventListener('click', () => overlay.remove());
+    overlay.querySelector('.confirm-btn').addEventListener('click', () => {
+        const newAmount = parseInt(document.getElementById('edit-modal-amount').value) || 0;
+        const newMemo = document.getElementById('edit-modal-memo').value.trim();
+        
+        if (newAmount <= 0) {
+            Toast.error('올바른 금액을 입력해주세요.');
+            return;
+        }
+        
+        overlay.remove();
+        onConfirm(newAmount, newMemo);
     });
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) overlay.remove();
@@ -931,6 +980,9 @@ Router.register('/manager/charge/:restId', async (container, params) => {
                 nickname: Session.getNickname(),
             });
             Toast.success(res.message);
+            if (res.data && res.data.transaction_id) {
+                Session.addMyTransaction(res.data.transaction_id);
+            }
             Router.navigate('/manager/restaurants');
         } catch (e) {
             Toast.error(e.message);
@@ -1258,6 +1310,9 @@ Router.register('/member/spend/:restId', async (container, params) => {
                 nickname: Session.getNickname(),
             });
             Toast.success(res.message);
+            if (res.data && res.data.transaction_id) {
+                Session.addMyTransaction(res.data.transaction_id);
+            }
             Router.navigate('/member');
         } catch (e) {
             Toast.error(e.message);
@@ -1381,23 +1436,89 @@ function renderTransactionList(container, transactions) {
         return;
     }
 
-    container.innerHTML = transactions.map(tx => `
-        <li class="tx-item">
-            <div class="tx-icon ${tx.type}">
-                ${tx.type === 'charge' ? '💰' : '🍚'}
-            </div>
-            <div class="tx-body">
-                <div class="tx-title">${escapeHtml(tx.restaurant_name || '')}</div>
-                <div class="tx-sub">${escapeHtml(tx.user_nickname)} · ${formatDate(tx.created_at)}${tx.memo ? ' · ' + escapeHtml(tx.memo) : ''}</div>
-            </div>
-            <div>
-                <div class="tx-amount ${tx.type}">
-                    ${tx.type === 'charge' ? '+' : '-'}${formatMoney(tx.amount)}
+    const myTxs = Session.getMyTransactions();
+    const now = new Date();
+
+    container.innerHTML = transactions.map(tx => {
+        const txTime = new Date(tx.created_at);
+        const isEditable = myTxs.includes(tx.id) && (now - txTime < 3600000); // 1시간 이내
+
+        return `
+            <li class="tx-item" data-id="${tx.id}" data-amount="${tx.amount}" data-memo="${escapeHtml(tx.memo || '')}" data-name="${escapeHtml(tx.restaurant_name || '')}">
+                <div class="tx-icon ${tx.type}">
+                    ${tx.type === 'charge' ? '💰' : '🍚'}
                 </div>
-                <div class="tx-balance-after">잔액 ${formatMoney(tx.balance_after)}</div>
-            </div>
-        </li>
-    `).join('');
+                <div class="tx-body">
+                    <div class="tx-title">${escapeHtml(tx.restaurant_name || '')}</div>
+                    <div class="tx-sub">${escapeHtml(tx.user_nickname)} · ${formatDate(tx.created_at)}${tx.memo ? ' · ' + escapeHtml(tx.memo) : ''}</div>
+                </div>
+                <div class="tx-right-side" style="text-align: right; display: flex; flex-direction: column; align-items: flex-end;">
+                    <div class="tx-amount ${tx.type}">
+                        ${tx.type === 'charge' ? '+' : '-'}${formatMoney(tx.amount)}
+                    </div>
+                    <div class="tx-balance-after">잔액 ${formatMoney(tx.balance_after)}</div>
+                    ${isEditable ? `
+                        <div class="tx-actions" style="margin-top: 6px; display: flex; gap: 8px;">
+                            <button class="btn-tx-action edit-tx-btn" title="수정" style="font-size: 0.72rem; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary); cursor: pointer;">✏️ 수정</button>
+                            <button class="btn-tx-action delete-tx-btn" title="삭제" style="font-size: 0.72rem; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card); color: var(--danger); cursor: pointer;">🗑️ 삭제</button>
+                        </div>
+                    ` : ''}
+                </div>
+            </li>
+        `;
+    }).join('');
+
+    // 삭제 버튼 리스너
+    container.querySelectorAll('.delete-tx-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const item = e.target.closest('.tx-item');
+            const txId = item.dataset.id;
+            const restName = item.dataset.name;
+            const amount = item.dataset.amount;
+            
+            showModal(
+                '거래 내역 삭제',
+                `<strong>'${escapeHtml(restName)}'</strong> 식당의 <strong>'${formatMoney(amount)}원'</strong> 거래 내역을 삭제하시겠습니까?<br><span style="color:var(--danger);font-size:0.85rem;">식당 잔액이 원래대로 복구됩니다.</span>`,
+                '삭제',
+                '취소',
+                async () => {
+                    try {
+                        await API.delete(`/api/transactions/${txId}`);
+                        Toast.success('거래가 삭제되었습니다.');
+                        Router.resolve(); // 새로고침
+                    } catch (err) {
+                        Toast.error(err.message);
+                    }
+                }
+            );
+        });
+    });
+
+    // 수정 버튼 리스너
+    container.querySelectorAll('.edit-tx-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const item = e.target.closest('.tx-item');
+            const txId = item.dataset.id;
+            const restName = item.dataset.name;
+            const amount = item.dataset.amount;
+            const memo = item.dataset.memo;
+            
+            showEditModal(
+                `'${escapeHtml(restName)}' 거래 수정`,
+                amount,
+                memo,
+                async (newAmount, newMemo) => {
+                    try {
+                        await API.put(`/api/transactions/${txId}`, { amount: newAmount, memo: newMemo });
+                        Toast.success('거래 정보가 수정되었습니다.');
+                        Router.resolve(); // 새로고침
+                    } catch (err) {
+                        Toast.error(err.message);
+                    }
+                }
+            );
+        });
+    });
 }
 
 
