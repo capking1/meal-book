@@ -40,9 +40,9 @@
     --bg-modal: hsla(0, 0%, 100%, 0.95);
 
     /* Text */
-    --text-primary: hsl(220, 35%, 15%);
-    --text-secondary: hsl(220, 15%, 45%);
-    --text-muted: hsl(220, 10%, 62%);
+    --text-primary: hsl(220, 35%, 12%);
+    --text-secondary: hsl(220, 20%, 32%);
+    --text-muted: hsl(220, 15%, 48%);
     --text-inverse: hsl(0, 0%, 100%);
 
     /* Borders */
