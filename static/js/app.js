@@ -492,7 +492,13 @@ Router.register('/home', (container) => {
     function copyToClipboard(text) {
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(text).then(() => {
-                Toast.success('초대 링크가 복사되었습니다!');
+                showModal(
+                    '초대 링크 복사 완료',
+                    `초대 링크가 클립보드에 복사되었습니다.<br><br><strong>카카오톡, 슬랙, 라인 등 메신저 앱 대화방에 붙여넣기(Ctrl+V 또는 길게 누르기)</strong>하여 팀원을 초대해 주세요!`,
+                    '확인',
+                    '닫기',
+                    () => {}
+                );
             }).catch(() => {
                 fallbackCopyToClipboard(text);
             });
@@ -514,7 +520,13 @@ Router.register('/home', (container) => {
         try {
             const successful = document.execCommand('copy');
             if (successful) {
-                Toast.success('초대 링크가 복사되었습니다!');
+                showModal(
+                    '초대 링크 복사 완료',
+                    `초대 링크가 클립보드에 복사되었습니다.<br><br><strong>카카오톡, 슬랙, 라인 등 메신저 앱 대화방에 붙여넣기(Ctrl+V 또는 길게 누르기)</strong>하여 팀원을 초대해 주세요!`,
+                    '확인',
+                    '닫기',
+                    () => {}
+                );
             } else {
                 Toast.error('초대 링크 복사에 실패했습니다.');
             }
