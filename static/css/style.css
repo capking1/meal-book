@@ -30,6 +30,7 @@
     --danger: hsl(0, 80%, 58%);
     --danger-light: hsl(0, 80%, 68%);
     --danger-bg: hsla(0, 80%, 58%, 0.12);
+    --balance-negative: hsl(14, 80%, 60%);
 
     /* Light Theme Surfaces */
     --bg-base: hsl(220, 30%, 96%);
@@ -201,8 +202,8 @@ h3 { font-size: 1.1rem; font-weight: 600; }
 }
 
 .card-negative {
-    border-left: 3px solid var(--danger);
-    background: linear-gradient(135deg, hsla(0, 80%, 58%, 0.06), var(--glass-bg));
+    border-left: 3px solid var(--balance-negative);
+    background: linear-gradient(135deg, hsla(14, 80%, 60%, 0.04), var(--glass-bg));
 }
 
 .card-warning {
@@ -251,7 +252,7 @@ h3 { font-size: 1.1rem; font-weight: 600; }
 }
 
 .stat-card.negative .stat-value {
-    background: linear-gradient(135deg, var(--danger), var(--danger-light));
+    background: linear-gradient(135deg, var(--balance-negative), hsl(14, 80%, 70%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -576,7 +577,7 @@ h3 { font-size: 1.1rem; font-weight: 600; }
 }
 
 .restaurant-card .rest-balance.negative {
-    color: var(--danger);
+    color: var(--balance-negative);
 }
 
 .restaurant-card .rest-meta {
@@ -668,7 +669,7 @@ h3 { font-size: 1.1rem; font-weight: 600; }
 }
 
 .tx-amount.charge { color: var(--success); }
-.tx-amount.spend { color: var(--danger); }
+.tx-amount.spend { color: var(--balance-negative); }
 
 .tx-balance-after {
     font-size: 0.72rem;

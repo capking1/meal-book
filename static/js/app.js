@@ -1154,7 +1154,6 @@ Router.register('/member', async (container) => {
                     <div class="rest-balance ${isNeg ? 'negative' : 'positive'}">
                         ${formatMoney(r.balance)}원
                     </div>
-                    ${isNeg ? '<div class="text-xs" style="color:var(--danger);">⚠ 잔액이 부족합니다</div>' : ''}
                 </div>
             `;
         }
