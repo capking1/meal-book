@@ -456,10 +456,7 @@ Router.register('/home', (container) => {
             </div>
         </div>
 
-        <div class="invite-box" style="justify-content: center; padding: 12px;">
-            <button class="btn btn-primary btn-full" id="btn-invite" style="margin: 0; width: 100%;">✉️ 팀원 초대하기</button>
-        </div>
-
+        <button class="btn btn-ghost btn-full mb-12" id="btn-invite">✉️ 팀원 초대하기</button>
         <button class="btn btn-ghost btn-full" id="btn-settings">⚙️ 설정</button>
     `;
 
