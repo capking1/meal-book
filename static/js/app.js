@@ -586,8 +586,7 @@ Router.register('/manager', async (container) => {
             </div>
 
             <div style="display:flex; flex-direction:column; gap:10px; margin-top:20px; margin-bottom:28px;">
-                <button class="btn btn-primary btn-full" id="btn-add-rest">🏪 식당 추가</button>
-                <button class="btn btn-ghost btn-full" id="btn-rest-list">📋 식당 목록 관리</button>
+                <button class="btn btn-primary btn-full" id="btn-rest-list">📋 식당 목록 관리</button>
                 <button class="btn btn-ghost btn-full" id="btn-history">📜 통합 내역 조회</button>
             </div>
 
@@ -608,7 +607,6 @@ Router.register('/manager', async (container) => {
         `;
 
         document.getElementById('back-btn').addEventListener('click', () => Router.navigate('/home'));
-        document.getElementById('btn-add-rest').addEventListener('click', () => Router.navigate('/manager/add'));
         document.getElementById('btn-rest-list').addEventListener('click', () => Router.navigate('/manager/restaurants'));
         document.getElementById('btn-history').addEventListener('click', () => Router.navigate('/manager/history'));
 
@@ -836,9 +834,12 @@ Router.register('/manager/restaurants', async (container) => {
         }
 
         let html = `
-            <div class="page-header">
-                <button class="back-btn" id="back-btn">←</button>
-                <h1>식당 목록 (${restaurants.length})</h1>
+            <div class="page-header" style="justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <button class="back-btn" id="back-btn">←</button>
+                    <h1>식당 목록 (${restaurants.length})</h1>
+                </div>
+                <button class="btn btn-sm btn-primary" id="btn-add" style="margin-left: auto;">+ 식당 추가</button>
             </div>
         `;
 
@@ -868,7 +869,6 @@ Router.register('/manager/restaurants', async (container) => {
             `;
         }
 
-        html += `<button class="btn btn-primary btn-full mt-20" id="btn-add">+ 식당 추가</button>`;
         container.innerHTML = html;
 
         document.getElementById('back-btn').addEventListener('click', () => Router.navigate('/manager'));
