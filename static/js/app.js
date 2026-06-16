@@ -131,6 +131,30 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
+function getRestaurantEmoji(name) {
+    const n = name || '';
+    if (n.includes('김밥') || n.includes('분식') || n.includes('천국')) return '🍱';
+    if (n.includes('서브웨이') || n.includes('샌드위치') || n.includes('빵')) return '🥪';
+    if (n.includes('국밥') || n.includes('찌개') || n.includes('탕') || n.includes('한식')) return '🍜';
+    if (n.includes('도시락') || n.includes('한솥')) return '🍱';
+    if (n.includes('돈까스') || n.includes('고기') || n.includes('삼겹') || n.includes('갈비')) return '🥩';
+    if (n.includes('짜장') || n.includes('짬뽕') || n.includes('중식') || n.includes('반점') || n.includes('양꼬치')) return '🥢';
+    if (n.includes('스시') || n.includes('초밥') || n.includes('회') || n.includes('일식')) return '🍣';
+    if (n.includes('버거') || n.includes('패스트')) return '🍔';
+    if (n.includes('피자')) return '🍕';
+    if (n.includes('치킨') || n.includes('닭')) return '🍗';
+    if (n.includes('우정') || n.includes('돌솥') || n.includes('비빔')) return '🍲';
+    if (n.includes('카페') || n.includes('커피') || n.includes('음료') || n.includes('디저트')) return '☕';
+    
+    // Fallback: hash based selection
+    const defaultEmojis = ['🍽️', '🍱', '🍜', '🍲', '🍛', '🍙', '🍢', '🥘'];
+    let sum = 0;
+    for (let i = 0; i < n.length; i++) {
+        sum += n.charCodeAt(i);
+    }
+    return defaultEmojis[sum % defaultEmojis.length];
+}
+
 function $(selector) { return document.querySelector(selector); }
 
 
@@ -1139,23 +1163,29 @@ Router.register('/member', async (container) => {
                 <button class="back-btn" id="back-btn">←</button>
                 <h1>식당을 선택하세요</h1>
             </div>
+            <div class="member-rest-grid">
         `;
 
         for (const r of restaurants) {
             const isNeg = r.balance < 0;
             html += `
-                <div class="restaurant-card clickable" data-id="${r.id}">
-                    <div class="rest-header">
-                        <span class="rest-name">${escapeHtml(r.name)}</span>
-                    </div>
-                    <div class="rest-balance ${isNeg ? 'negative' : 'positive'}">
+                <div class="restaurant-card clickable ${isNeg ? 'card-negative' : ''}" data-id="${r.id}" style="margin-bottom:0; display:flex; flex-direction:column; align-items:center; text-align:center; padding: 20px 10px;">
+                    <span style="font-size: 2rem; margin-bottom: 8px;">${getRestaurantEmoji(r.name)}</span>
+                    <div class="rest-name" style="font-weight: 700; font-size: 1.05rem; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;">${escapeHtml(r.name)}</div>
+                    <div class="rest-balance ${isNeg ? 'negative' : 'positive'}" style="font-size: 1.1rem; font-weight: 800;">
                         ${formatMoney(r.balance)}원
+                    </div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 8px;">
+                        최근: ${r.last_used ? formatDate(r.last_used).split(' ')[0] : '-'}
                     </div>
                 </div>
             `;
         }
 
-        html += `<button class="btn btn-ghost btn-full mt-20" id="btn-my-history">📜 내 사용 내역</button>`;
+        html += `
+            </div>
+            <button class="btn btn-ghost btn-full mt-20" id="btn-my-history">📜 내 사용 내역</button>
+        `;
         container.innerHTML = html;
 
         document.getElementById('back-btn').addEventListener('click', () => Router.navigate('/home'));

@@ -1045,3 +1045,11 @@ h3 { font-size: 1.1rem; font-weight: 600; }
     border-color: hsla(var(--primary-h), var(--primary-s), 62%, 0.3) !important;
     background: hsla(var(--primary-h), var(--primary-s), 62%, 0.05) !important;
 }
+
+/* Member Restaurant Grid */
+.member-rest-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
