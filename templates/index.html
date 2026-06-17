@@ -2,6 +2,16 @@
 <html lang="ko">
 
 <head>
+    <script>
+        // 카카오톡 인앱 브라우저 탈출 스크립트
+        (function() {
+            var ua = navigator.userAgent.toLowerCase();
+            if (ua.indexOf('kakaotalk') > -1) {
+                // 카카오톡 내장 브라우저일 경우 기기의 기본 브라우저로 URL 열기
+                window.location.href = 'kakaotalk://web/openExternalApp?url=' + encodeURIComponent(window.location.href);
+            }
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
