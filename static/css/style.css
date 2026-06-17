@@ -1057,35 +1057,36 @@ h3 { font-size: 1.1rem; font-weight: 600; }
 /* ── KakaoTalk Warning Banner ── */
 .kakaotalk-warning-banner {
     position: fixed;
-    bottom: 20px;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
     width: calc(100% - 32px);
     max-width: var(--max-width);
     background: hsla(38, 95%, 12%, 0.88);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid hsla(38, 95%, 50%, 0.35);
-    border-radius: var(--radius-lg);
-    padding: 14px 16px;
+    border-radius: var(--radius-xl);
+    padding: 24px;
     z-index: 9999;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 12px;
-    box-shadow: var(--shadow-lg), 0 10px 30px rgba(0, 0, 0, 0.5);
-    animation: toastIn var(--duration-slow) var(--ease-bounce) forwards;
+    text-align: center;
+    gap: 16px;
+    box-shadow: var(--shadow-lg), 0 10px 40px rgba(0, 0, 0, 0.6);
+    animation: popupIn var(--duration-slow) var(--ease-bounce) forwards;
 }
 
 .kakaotalk-warning-banner .warning-icon {
-    font-size: 1.4rem;
-    flex-shrink: 0;
+    font-size: 2.4rem;
+    filter: drop-shadow(0 4px 10px hsla(38, 95%, 50%, 0.3));
 }
 
 .kakaotalk-warning-banner .warning-text {
-    flex: 1;
-    font-size: 0.82rem;
-    color: hsl(38, 90%, 85%);
-    line-height: 1.45;
+    font-size: 0.9rem;
+    color: hsl(38, 90%, 88%);
+    line-height: 1.55;
 }
 
 .kakaotalk-warning-banner .warning-text strong {
@@ -1093,19 +1094,34 @@ h3 { font-size: 1.1rem; font-weight: 600; }
 }
 
 .kakaotalk-warning-banner .warning-close {
-    background: transparent;
-    border: none;
-    color: hsl(38, 90%, 80%);
-    font-size: 1.1rem;
+    background: hsla(38, 95%, 50%, 0.2);
+    border: 1px solid hsla(38, 95%, 50%, 0.4);
+    color: hsl(38, 90%, 90%);
+    font-size: 0.88rem;
+    font-weight: 600;
     cursor: pointer;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0.6;
-    transition: opacity var(--duration-fast);
+    padding: 10px 24px;
+    border-radius: var(--radius-md);
+    margin-top: 4px;
+    transition: all var(--duration-fast) var(--ease-out);
 }
 
 .kakaotalk-warning-banner .warning-close:hover {
-    opacity: 1;
+    background: hsla(38, 95%, 50%, 0.35);
+    border-color: hsla(38, 95%, 50%, 0.6);
+    transform: translateY(-1px);
+}
+
+.kakaotalk-warning-banner .warning-close:active {
+    transform: scale(0.97);
+}
+
+@keyframes popupIn {
+    from { opacity: 0; transform: translate(-50%, -45%) scale(0.95); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes popupOut {
+    from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    to { opacity: 0; transform: translate(-50%, -45%) scale(0.95); }
 }

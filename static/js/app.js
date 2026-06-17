@@ -1574,11 +1574,11 @@ function checkAndShowKakaoTalkWarning() {
             <div class="warning-text">
                 <strong>카카오톡 브라우저 안내:</strong> 네트워크 연결 에러가 발생할 수 있습니다. 원활한 이용을 위해 우측 상단 <code>⋮</code> 버튼을 누르고 <strong>'다른 브라우저로 열기'</strong>를 선택해 주세요.
             </div>
-            <button class="warning-close" aria-label="닫기">✕</button>
+            <button class="warning-close">닫기</button>
         `;
         
         banner.querySelector('.warning-close').addEventListener('click', () => {
-            banner.style.animation = 'toastOut var(--duration-normal) var(--ease-out) forwards';
+            banner.style.animation = 'popupOut var(--duration-normal) var(--ease-out) forwards';
             setTimeout(() => banner.remove(), 300);
         });
 
