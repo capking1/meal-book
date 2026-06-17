@@ -1565,7 +1565,8 @@ function renderTransactionList(container, transactions) {
 // ──────────────────────────────────────────────
 function checkAndShowKakaoTalkWarning() {
     const ua = navigator.userAgent.toLowerCase();
-    if (ua.includes('kakaotalk')) {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (ua.includes('kakaotalk') || urlParams.get('test') === 'kakaotalk') {
         const banner = document.createElement('div');
         banner.className = 'kakaotalk-warning-banner';
         banner.innerHTML = `
