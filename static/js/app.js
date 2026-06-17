@@ -1563,7 +1563,15 @@ function renderTransactionList(container, transactions) {
 // ──────────────────────────────────────────────
 // App Init
 // ──────────────────────────────────────────────
+function checkKakaoTalk() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    if (userAgent.includes('kakaotalk')) {
+        location.href = 'kakaotalk://web/openExternalApp?url=' + encodeURIComponent(location.href);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    checkKakaoTalk();
     Toast.init();
     Router.init();
 });
