@@ -28,9 +28,9 @@ const Session = {
         return s && s.teamId && s.nickname;
     },
 
-    getTeamId()  { return this.get()?.teamId || ''; },
-    getTeamName(){ return this.get()?.teamName || ''; },
-    getNickname(){ return this.get()?.nickname || ''; },
+    getTeamId() { return this.get()?.teamId || ''; },
+    getTeamName() { return this.get()?.teamName || ''; },
+    getNickname() { return this.get()?.nickname || ''; },
     getMyTransactions() { return this.get()?.myTransactions || []; },
     addMyTransaction(txId) {
         const s = this.get();
@@ -69,10 +69,10 @@ const API = {
         }
     },
 
-    get(url)        { return this.request('GET', url); },
+    get(url) { return this.request('GET', url); },
     post(url, body) { return this.request('POST', url, body); },
-    put(url, body)  { return this.request('PUT', url, body); },
-    delete(url)     { return this.request('DELETE', url); },
+    put(url, body) { return this.request('PUT', url, body); },
+    delete(url) { return this.request('DELETE', url); },
 };
 
 
@@ -102,8 +102,8 @@ const Toast = {
     },
 
     success(msg) { this.show(msg, 'success'); },
-    error(msg)   { this.show(msg, 'error'); },
-    info(msg)    { this.show(msg, 'info'); },
+    error(msg) { this.show(msg, 'error'); },
+    info(msg) { this.show(msg, 'info'); },
 };
 
 
@@ -145,7 +145,7 @@ function getRestaurantEmoji(name) {
     if (n.includes('치킨') || n.includes('닭')) return '🍗';
     if (n.includes('우정') || n.includes('돌솥') || n.includes('비빔')) return '🍲';
     if (n.includes('카페') || n.includes('커피') || n.includes('음료') || n.includes('디저트')) return '☕';
-    
+
     // Fallback: hash based selection
     const defaultEmojis = ['🍽️', '🍱', '🍜', '🍲', '🍛', '🍙', '🍢', '🥘'];
     let sum = 0;
@@ -282,12 +282,12 @@ function showEditModal(title, amount, memo, onConfirm) {
     overlay.querySelector('.confirm-btn').addEventListener('click', () => {
         const newAmount = parseInt(document.getElementById('edit-modal-amount').value) || 0;
         const newMemo = document.getElementById('edit-modal-memo').value.trim();
-        
+
         if (newAmount <= 0) {
             Toast.error('올바른 금액을 입력해주세요.');
             return;
         }
-        
+
         overlay.remove();
         onConfirm(newAmount, newMemo);
     });
@@ -505,7 +505,7 @@ Router.register('/home', (container) => {
                 if (e.name === 'AbortError') return;
             }
         }
-        
+
         // 지원하지 않거나 실패 시 클립보드 복사 수행
         copyToClipboard(inviteLink);
     });
@@ -518,7 +518,7 @@ Router.register('/home', (container) => {
                     `초대 링크가 클립보드에 복사되었습니다.<br><br><strong>카카오톡, 슬랙, 라인 등 메신저 앱 대화방에 붙여넣기(Ctrl+V 또는 길게 누르기)</strong>하여 팀원을 초대해 주세요!`,
                     '확인',
                     '닫기',
-                    () => {}
+                    () => { }
                 );
             }).catch(() => {
                 fallbackCopyToClipboard(text);
@@ -546,7 +546,7 @@ Router.register('/home', (container) => {
                     `초대 링크가 클립보드에 복사되었습니다.<br><br><strong>카카오톡, 슬랙, 라인 등 메신저 앱 대화방에 붙여넣기(Ctrl+V 또는 길게 누르기)</strong>하여 팀원을 초대해 주세요!`,
                     '확인',
                     '닫기',
-                    () => {}
+                    () => { }
                 );
             } else {
                 Toast.error('초대 링크 복사에 실패했습니다.');
@@ -1078,7 +1078,7 @@ Router.register('/manager/history', async (container) => {
         try {
             const res = await API.get(`/api/teams/${teamId}/transactions?${params}`);
             const txs = res.data || [];
-            
+
             // 특정 식당 필터링 상태이고 데이터가 존재할 경우 제목에 식당명 반영
             if (filterRestId && txs.length > 0) {
                 const restName = txs[0].restaurant_name;
@@ -1091,11 +1091,11 @@ Router.register('/manager/history', async (container) => {
                     if (r) {
                         document.getElementById('history-title').textContent = `${r.name} 장부`;
                     }
-                } catch {}
+                } catch { }
             } else {
                 document.getElementById('history-title').textContent = '통합 내역';
             }
-            
+
             renderTransactionList(document.getElementById('tx-list'), txs);
         } catch (e) {
             Toast.error(e.message);
@@ -1274,7 +1274,7 @@ Router.register('/member/spend/:restId', async (container, params) => {
             const res = await API.get(`/api/teams/${teamId}/transactions?restaurant_id=${params.restId}&limit=3`);
             const txs = res.data || [];
             const listContainer = document.getElementById('recent-spend-tx-list');
-            
+
             if (txs.length === 0) {
                 listContainer.innerHTML = `
                     <div style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 16px 0;">
@@ -1300,7 +1300,7 @@ Router.register('/member/spend/:restId', async (container, params) => {
                     </div>
                 </li>
             `).join('');
-            
+
             // 마지막 아이템 보더 제거
             const items = listContainer.querySelectorAll('.tx-item');
             if (items.length > 0) {
@@ -1351,7 +1351,7 @@ Router.register('/member/spend/:restId', async (container, params) => {
             if (res.data && res.data.transaction_id) {
                 Session.addMyTransaction(res.data.transaction_id);
             }
-            Router.navigate('/member/history');
+            Router.navigate(`/manager/history?restaurant_id=${params.restId}`);
         } catch (e) {
             Toast.error(e.message);
         }
@@ -1513,7 +1513,7 @@ function renderTransactionList(container, transactions) {
             const txId = item.dataset.id;
             const restName = item.dataset.name;
             const amount = item.dataset.amount;
-            
+
             showModal(
                 '거래 내역 삭제',
                 `<strong>'${escapeHtml(restName)}'</strong> 식당의 <strong>'${formatMoney(amount)}원'</strong> 거래 내역을 삭제하시겠습니까?<br><span style="color:var(--danger);font-size:0.85rem;">식당 잔액이 원래대로 복구됩니다.</span>`,
@@ -1540,7 +1540,7 @@ function renderTransactionList(container, transactions) {
             const restName = item.dataset.name;
             const amount = item.dataset.amount;
             const memo = item.dataset.memo;
-            
+
             showEditModal(
                 `'${escapeHtml(restName)}' 거래 수정`,
                 amount,
@@ -1572,11 +1572,11 @@ function checkAndShowKakaoTalkWarning() {
         banner.innerHTML = `
             <span class="warning-icon">⚠️</span>
             <div class="warning-text">
-                <strong>카카오톡 브라우저 안내:</strong> 네트워크 연결 에러가 발생할 수 있습니다. 원활한 이용을 위해 우측 상단 <code>⋮</code> 버튼을 누르고 <strong>'다른 브라우저로 열기'</strong>를 선택해 주세요.
+                <strong>카카오톡 브라우저 안내:</strong> 원활한 이용을 위해 다른 브라우저(삼성인터넷, 크롬, 사파리 등)로 사용해 주세요.
             </div>
             <button class="warning-close">닫기</button>
         `;
-        
+
         banner.querySelector('.warning-close').addEventListener('click', () => {
             banner.style.animation = 'popupOut var(--duration-normal) var(--ease-out) forwards';
             setTimeout(() => banner.remove(), 300);
