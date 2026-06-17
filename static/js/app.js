@@ -1566,7 +1566,12 @@ function renderTransactionList(container, transactions) {
 function checkKakaoTalk() {
     const userAgent = navigator.userAgent.toLowerCase();
     if (userAgent.includes('kakaotalk')) {
-        location.href = 'kakaotalk://web/openExternalApp?url=' + encodeURIComponent(location.href);
+        const url = location.href;
+        if (userAgent.includes('android')) {
+            location.href = 'intent://' + url.replace(/https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
+        } else {
+            location.href = 'kakaotalk://web/openExternalApp?url=' + encodeURIComponent(url);
+        }
     }
 }
 
