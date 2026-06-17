@@ -1486,8 +1486,12 @@ function renderTransactionList(container, transactions, showRestaurantName = tru
                     ${tx.type === 'charge' ? '💰' : '🍚'}
                 </div>
                 <div class="tx-body">
-                    ${showRestaurantName ? `<div class="tx-title">${escapeHtml(tx.restaurant_name || '')}</div>` : ''}
-                    <div class="tx-sub">${escapeHtml(tx.user_nickname)} · ${formatDate(tx.created_at)}${tx.memo ? ' · ' + escapeHtml(tx.memo) : ''}</div>
+                    ${showRestaurantName ? `
+                        <div class="tx-title">${escapeHtml(tx.restaurant_name || '')}</div>
+                        <div class="tx-sub">${escapeHtml(tx.user_nickname)} · ${formatDate(tx.created_at)}${tx.memo ? ' · ' + escapeHtml(tx.memo) : ''}</div>
+                    ` : `
+                        <div class="tx-title">${escapeHtml(tx.user_nickname)} · ${formatDate(tx.created_at)}${tx.memo ? ' · ' + escapeHtml(tx.memo) : ''}</div>
+                    `}
                 </div>
                 <div class="tx-right-side" style="text-align: right; display: flex; flex-direction: column; align-items: flex-end;">
                     <div class="tx-amount ${tx.type}">
