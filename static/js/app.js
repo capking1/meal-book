@@ -1095,8 +1095,7 @@ Router.register('/manager/history', async (container) => {
             } else {
                 document.getElementById('history-title').textContent = '통합 내역';
             }
-
-            renderTransactionList(document.getElementById('tx-list'), txs);
+            renderTransactionList(document.getElementById('tx-list'), txs, !filterRestId);
         } catch (e) {
             Toast.error(e.message);
         }
@@ -1463,7 +1462,7 @@ Router.register('/settings', (container) => {
 // ──────────────────────────────────────────────
 // Shared: Transaction List Renderer
 // ──────────────────────────────────────────────
-function renderTransactionList(container, transactions) {
+function renderTransactionList(container, transactions, showRestaurantName = true) {
     if (transactions.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
@@ -1487,7 +1486,7 @@ function renderTransactionList(container, transactions) {
                     ${tx.type === 'charge' ? '💰' : '🍚'}
                 </div>
                 <div class="tx-body">
-                    <div class="tx-title">${escapeHtml(tx.restaurant_name || '')}</div>
+                    ${showRestaurantName ? `<div class="tx-title">${escapeHtml(tx.restaurant_name || '')}</div>` : ''}
                     <div class="tx-sub">${escapeHtml(tx.user_nickname)} · ${formatDate(tx.created_at)}${tx.memo ? ' · ' + escapeHtml(tx.memo) : ''}</div>
                 </div>
                 <div class="tx-right-side" style="text-align: right; display: flex; flex-direction: column; align-items: flex-end;">
