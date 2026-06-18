@@ -85,7 +85,7 @@ ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "${VM_USER}@${VM_IP}" "
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}==========================================${NC}"
     echo -e "${GREEN}배포가 성공적으로 완료되었습니다!${NC}"
-    echo -e "${GREEN}접속 주소: http://$VM_IP:7890${NC}"
+    echo -e "${GREEN}접속 주소: http://$VM_IP${NC}"
     echo -e "${GREEN}==========================================${NC}"
 else
     echo -e "${RED}오류: Docker Compose 빌드 및 실행에 실패했습니다.${NC}"
